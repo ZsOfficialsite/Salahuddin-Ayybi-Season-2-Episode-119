@@ -619,7 +619,6 @@
             <div class="download-modal" id="downloadModal">
                 <div class="modal-content">
                     <button class="modal-close" id="closeModalBtn">&times;</button>
-                    <h3 class="modal-title">Select Quality</h3>
                     
                     <div style="padding: 20px 10px; color: #D4AF37; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: 1px;">
                         Coming Soon...
@@ -726,6 +725,7 @@
             }, 800); 
         }
 
+        // URL HAS BEEN UPDATED HERE
         const videoSource = "https://vkvd296.okcdn.ru/expires/1775170023337/clientType/13/srcIp/205.254.178.7/type/2/mid/10279722756169/id/9385473083977/ms/185.180.203.174/zs/65/srcAg/CHROME/pr/40/ct/28/sig/ycPtI4YrLew/ondemand/CMmUqM6TkQISFAjJlKjOk5ECEMmUqM6TkQIYNyABGhQIyZSozpORAhDJlKjOk5ECGDcgAiAGKAUwAzgCeM4BGMmwNFr-9oE/fn/track.m3u8";
 
         // --- UI ELEMENTS ---
@@ -825,18 +825,24 @@
             e.preventDefault(); 
         });
 
-        if (Hls.isSupported()) {
-            const hls = new Hls({
-                maxMaxBufferLength: 60, 
-                maxBufferSize: 60 * 1000 * 1000 
-            });
-            hls.loadSource(videoSource);
-            hls.attachMedia(video);
-            
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) loading.classList.add('active');
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // --- VIDEO INITIALIZATION (FIXED FOR DIRECT LINKS) ---
+        if (videoSource.includes('.m3u8')) {
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    maxMaxBufferLength: 60, 
+                    maxBufferSize: 60 * 1000 * 1000 
+                });
+                hls.loadSource(videoSource);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) loading.classList.add('active');
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSource;
+            }
+        } else {
+            // Direct MP4 or other video format
             video.src = videoSource;
         }
 
@@ -1030,7 +1036,12 @@
                 if (region === 'center') {
                     togglePlay(); 
                 } else {
-                    toggleControlsTouch(); 
+                    if (playerWrapper.classList.contains('show-controls')) {
+                        playerWrapper.classList.remove('show-controls');
+                        clearTimeout(hideControlsTimeout);
+                    } else {
+                        resetControlsTimeoutOnAction();
+                    }
                 }
                 lastTapTime = currentTime;
             }
