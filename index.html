@@ -619,6 +619,7 @@
             <div class="download-modal" id="downloadModal">
                 <div class="modal-content">
                     <button class="modal-close" id="closeModalBtn">&times;</button>
+                    <h3 class="modal-title">Select Quality</h3>
                     
                     <div style="padding: 20px 10px; color: #D4AF37; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: 1px;">
                         Coming Soon...
@@ -725,7 +726,6 @@
             }, 800); 
         }
 
-        // URL HAS BEEN UPDATED HERE
         const videoSource = "https://hugh.cdn.rumble.cloud/video/fww1/e1/s8/2/Q/K/5/a/QK5aA.caa.tar?r_file=chunklist.m3u8&r_type=application%2Fvnd.apple.mpegurl&r_range=284469760-284491421";
 
         // --- UI ELEMENTS ---
@@ -825,24 +825,18 @@
             e.preventDefault(); 
         });
 
-        // --- VIDEO INITIALIZATION (FIXED FOR DIRECT LINKS) ---
-        if (videoSource.includes('.m3u8')) {
-            if (Hls.isSupported()) {
-                const hls = new Hls({
-                    maxMaxBufferLength: 60, 
-                    maxBufferSize: 60 * 1000 * 1000 
-                });
-                hls.loadSource(videoSource);
-                hls.attachMedia(video);
-                
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) loading.classList.add('active');
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSource;
-            }
-        } else {
-            // Direct MP4 or other video format
+        if (Hls.isSupported()) {
+            const hls = new Hls({
+                maxMaxBufferLength: 60, 
+                maxBufferSize: 60 * 1000 * 1000 
+            });
+            hls.loadSource(videoSource);
+            hls.attachMedia(video);
+            
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                if (data.fatal) loading.classList.add('active');
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = videoSource;
         }
 
@@ -1036,12 +1030,7 @@
                 if (region === 'center') {
                     togglePlay(); 
                 } else {
-                    if (playerWrapper.classList.contains('show-controls')) {
-                        playerWrapper.classList.remove('show-controls');
-                        clearTimeout(hideControlsTimeout);
-                    } else {
-                        resetControlsTimeoutOnAction();
-                    }
+                    toggleControlsTouch(); 
                 }
                 lastTapTime = currentTime;
             }
