@@ -138,6 +138,30 @@
             display: none !important;
         }
 
+        /* --- VIDEO TITLE --- */
+        .video-title {
+            position: absolute;
+            top: max(20px, env(safe-area-inset-top));
+            left: max(25px, env(safe-area-inset-left));
+            color: #f4f4f5;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            z-index: 140;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-wrapper.show-controls .video-title {
+            opacity: 1; 
+        }
+
         /* --- TOP RIGHT MENU --- */
         .top-right-container {
             position: absolute;
@@ -532,6 +556,11 @@
 
         /* --- ANDROID/MOBILE RESPONSIVE FIXES --- */
         @media (max-width: 1100px) {
+            .video-title { 
+                top: max(15px, env(safe-area-inset-top)); 
+                left: max(15px, env(safe-area-inset-left)); 
+                font-size: 14px;
+            }
             .top-right-container { 
                 top: max(15px, env(safe-area-inset-top)); 
                 right: max(25px, env(safe-area-inset-right)); 
@@ -551,6 +580,10 @@
 
         /* --- ULTRA-PORTRAIT (NARROW PHONE) FIT FIXES --- */
         @media (max-width: 480px) {
+            .video-title {
+                font-size: 13px;
+                max-width: 65%;
+            }
             .controls { padding: 15px 12px 10px 12px; }
             .controls-row { gap: 6px; }
             .btn { width: 34px; height: 34px; border-radius: 8px; }
@@ -588,6 +621,8 @@
             
             <img src="https://files.catbox.moe/q1dhlp.jpg" alt="ZS Logo" class="video-logo">
 
+            <div class="video-title">Sultan Salahuddin Ayyubi Season 2 Episode 119</div>
+
             <div class="top-right-container">
                 <button class="btn" id="settingsBtn" title="Menu">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
@@ -619,6 +654,7 @@
             <div class="download-modal" id="downloadModal">
                 <div class="modal-content">
                     <button class="modal-close" id="closeModalBtn">&times;</button>
+                    
                     <div style="padding: 20px 10px; color: #D4AF37; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: 1px;">
                         Coming Soon...
                     </div>
@@ -649,7 +685,7 @@
                 </svg>
             </div>
 
-            <video id="video" playsinline preload="auto" poster="https://files.catbox.moe/3rihtn.png"></video>
+            <video id="video" playsinline preload="auto" poster="https://files.catbox.moe/v33t1o.jpg"></video>
 
             <div class="controls" id="controls">
                 
@@ -724,7 +760,7 @@
             }, 800); 
         }
 
-        const videoSource = "https://hugh.cdn.rumble.cloud/video/fww1/e1/s8/2/Q/K/5/a/QK5aA.caa.tar?r_file=chunklist.m3u8&r_type=application%2Fvnd.apple.mpegurl&r_range=284469760-284491421";
+        const videoSource = "https://binding-brena-saood-432b4631.koyeb.app/stream/16?hash=9063c6";
 
         // --- UI ELEMENTS ---
         const playBtn = document.getElementById('playBtn');
@@ -823,18 +859,24 @@
             e.preventDefault(); 
         });
 
-        if (Hls.isSupported()) {
-            const hls = new Hls({
-                maxMaxBufferLength: 60, 
-                maxBufferSize: 60 * 1000 * 1000 
-            });
-            hls.loadSource(videoSource);
-            hls.attachMedia(video);
-            
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) loading.classList.add('active');
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // --- VIDEO INITIALIZATION (FIXED FOR DIRECT LINKS) ---
+        if (videoSource.includes('.m3u8')) {
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    maxMaxBufferLength: 60, 
+                    maxBufferSize: 60 * 1000 * 1000 
+                });
+                hls.loadSource(videoSource);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) loading.classList.add('active');
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSource;
+            }
+        } else {
+            // Direct MP4 or other video format
             video.src = videoSource;
         }
 
@@ -991,7 +1033,7 @@
                 settingsMenu.classList.remove('show');
             }
 
-            if(e.target.closest('.controls') || e.target.closest('.progress-container') || e.target.closest('.top-right-container') || e.target.closest('.download-modal')) return;
+            if(e.target.closest('.controls') || e.target.closest('.progress-container') || e.target.closest('.top-right-container') || e.target.closest('.download-modal') || e.target.closest('.video-title')) return;
 
             const currentTime = new Date().getTime();
             const tapLength = currentTime - lastTapTime;
@@ -1028,7 +1070,12 @@
                 if (region === 'center') {
                     togglePlay(); 
                 } else {
-                    toggleControlsTouch(); 
+                    if (playerWrapper.classList.contains('show-controls')) {
+                        playerWrapper.classList.remove('show-controls');
+                        clearTimeout(hideControlsTimeout);
+                    } else {
+                        resetControlsTimeoutOnAction();
+                    }
                 }
                 lastTapTime = currentTime;
             }
