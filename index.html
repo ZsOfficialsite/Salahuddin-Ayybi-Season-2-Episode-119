@@ -31,6 +31,64 @@
             user-select: none;
         }
 
+        /* --- CLOUDFLARE SECURITY OVERLAY --- */
+        .security-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        .security-box {
+            background: #18181b; 
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lock-icon {
+            background: #1e293b;
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .lock-icon svg {
+            width: 32px; height: 32px;
+            stroke: #3b82f6; 
+            fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+        }
+
+        .security-box h2 {
+            font-size: 24px; font-weight: 600; margin-bottom: 12px; color: #f4f4f5; letter-spacing: -0.5px;
+        }
+
+        .security-box p {
+            font-size: 15px; color: #a1a1aa; margin-bottom: 30px; line-height: 1.5;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container {
+            width: 95%;
+            max-width: 1100px;
+            position: relative;
+            z-index: 10;
+            display: none; /* Hidden untill verified */
+        }
 
         /* Player Wrapper */
         .player-wrapper {
@@ -509,6 +567,21 @@
 </head>
 <body>
 
+    <div id="securityOverlay" class="security-overlay">
+        <div class="security-box">
+            <div class="lock-icon">
+                <svg viewBox="0 0 24 24">
+                    <rect x="5" y="11" width="14" height="10" rx="2" ry="2"></rect>
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                </svg>
+            </div>
+            <h2>Security Check</h2>
+            <p>Verify you are human to access this secure content.</p>
+            
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACxoimIN2VZKXQHA" data-theme="dark" data-callback="onCloudflareVerified"></div>
+        </div>
+    </div>
+
 
     <div class="container" id="mainContainer">
         <div class="player-wrapper show-controls" id="playerWrapper">
@@ -546,8 +619,6 @@
             <div class="download-modal" id="downloadModal">
                 <div class="modal-content">
                     <button class="modal-close" id="closeModalBtn">&times;</button>
-
-                    
                     <div style="padding: 20px 10px; color: #D4AF37; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: 1px;">
                         Coming Soon...
                     </div>
@@ -578,7 +649,7 @@
                 </svg>
             </div>
 
-            <video id="video" playsinline preload="auto" poster="THUMBNAIL LINK"></video>
+            <video id="video" playsinline preload="auto" poster="https://files.catbox.moe/v33t1o.jpg"></video>
 
             <div class="controls" id="controls">
                 
@@ -641,9 +712,19 @@
         const securityOverlay = document.getElementById('securityOverlay');
         const mainContainer = document.getElementById('mainContainer');
         const video = document.getElementById('video');
-    
+        
+        // --- REAL CLOUDFLARE CALLBACK FUNCTION ---
+        function onCloudflareVerified(token) {
+            setTimeout(() => {
+                securityOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    securityOverlay.style.display = 'none';
+                    mainContainer.style.display = 'block';
+                }, 500); 
+            }, 800); 
+        }
 
-        const videoSource = "VIDEO LINK";
+        const videoSource = "https://hugh.cdn.rumble.cloud/video/fww1/b7/s8/2/C/h/H/-/ChH-z.gaa.tar?r_file=chunklist.m3u8&r_type=application%2Fvnd.apple.mpegurl&r_range=223097344-223105718";
 
         // --- UI ELEMENTS ---
         const playBtn = document.getElementById('playBtn');
