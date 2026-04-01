@@ -37,11 +37,11 @@
             background: linear-gradient(135deg, #0a0e27 0%, #030617 100%);
             min-height: 100vh;
             display: flex;
-            align-items: flex-start;
+            align-items: flex-start; /* Changed to allow scrolling without top cutoff */
             justify-content: center;
-            padding: 40px 0;
+            padding: 40px 0; /* Padding for smooth scroll space */
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: auto; /* Enabled scrolling */
             position: relative;
             /* Disable any long-press context menus on the entire page */
             -webkit-touch-callout: none;
@@ -108,6 +108,24 @@
             display: none; /* Hidden untill verified */
         }
 
+        /* --- TITLE ABOVE PLAYER SECTION --- */
+        .page-header {
+            margin-bottom: 20px;
+            padding: 0 5px;
+            width: 100%;
+        }
+
+        .video-main-title {
+            color: #D4AF37;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(18px, 4.5vw, 24px);
+            font-weight: 700;
+            line-height: 1.3;
+            /* Golden Neon Effect */
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+            letter-spacing: -0.2px;
+        }
+
         /* Player Wrapper */
         .player-wrapper {
             position: relative;
@@ -154,23 +172,6 @@
         /* --- Top Left Logo - HIDDEN AS REQUESTED --- */
         .video-logo {
             display: none !important;
-        }
-
-        /* --- YOUTUBE STYLE TITLE SECTION --- */
-        .video-info-section {
-            margin-top: 15px;
-            padding: 0 5px;
-            width: 100%;
-        }
-
-        .video-main-title {
-            color: #D4AF37;
-            font-family: 'Inter', sans-serif;
-            font-size: clamp(18px, 4.5vw, 24px);
-            font-weight: 700;
-            line-height: 1.3;
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
-            letter-spacing: -0.2px;
         }
 
         /* --- TOP RIGHT MENU --- */
@@ -619,6 +620,11 @@
 
 
     <div class="container" id="mainContainer">
+
+        <div class="page-header">
+            <h1 class="video-main-title">Salahuddin Ayyubi Season 2 Episode 119</h1>
+        </div>
+
         <div class="player-wrapper show-controls" id="playerWrapper">
             
             <img src="https://files.catbox.moe/q1dhlp.jpg" alt="ZS Logo" class="video-logo">
@@ -743,11 +749,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="video-info-section">
-            <h1 class="video-main-title">Salahuddin Ayyubi Season 2 Episode 119</h1>
-        </div>
-
     </div>
 
     <script>
@@ -1212,3 +1213,4 @@
     </script>
 </body>
 </html>
+}
