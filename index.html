@@ -37,11 +37,11 @@
             background: linear-gradient(135deg, #0a0e27 0%, #030617 100%);
             min-height: 100vh;
             display: flex;
-            align-items: flex-start; /* Changed from center to prevent top cutoff when scrolling */
+            align-items: flex-start;
             justify-content: center;
-            padding: 40px 0; /* Added padding for smooth scrolling */
+            padding: 40px 0;
             overflow-x: hidden;
-            overflow-y: auto; /* Enabled scrolling */
+            overflow-y: auto;
             position: relative;
             /* Disable any long-press context menus on the entire page */
             -webkit-touch-callout: none;
@@ -169,7 +169,6 @@
             font-size: clamp(18px, 4.5vw, 24px);
             font-weight: 700;
             line-height: 1.3;
-            /* Golden Neon Effect */
             text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
             letter-spacing: -0.2px;
         }
@@ -655,10 +654,12 @@
             <div class="download-modal" id="downloadModal">
                 <div class="modal-content">
                     <button class="modal-close" id="closeModalBtn">&times;</button>
-                    <div style="padding: 20px 10px; color: #D4AF37; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: 1px;">
-                        Coming Soon...
-                    </div>
-                    
+                    <h3 class="modal-title">Select Quality</h3>
+                    <a href="https://binding-brena-saood-432b4631.koyeb.app/stream/16?hash=9063c6&d=true" class="modal-link" target="_blank" download>1080p (FHD)</a>
+                    <a href="https://binding-brena-saood-432b4631.koyeb.app/stream/15?hash=95301f&d=true" class="modal-link" target="_blank" download>720p (HD)</a>
+                    <a href="https://binding-brena-saood-432b4631.koyeb.app/stream/14?hash=86439c&d=true" class="modal-link" target="_blank" download>480p (HD)</a>
+                    <a href="https://binding-brena-saood-432b4631.koyeb.app/stream/13?hash=9de030&d=true" class="modal-link" target="_blank" download>360p (SD)</a>
+                    <a href="https://binding-brena-saood-432b4631.koyeb.app/stream/12?hash=8d00e5&d=true" class="modal-link" target="_blank" download>240p (Low)</a>
                 </div>
             </div>
 
@@ -864,18 +865,22 @@
             e.preventDefault(); 
         });
 
-        if (Hls.isSupported()) {
-            const hls = new Hls({
-                maxMaxBufferLength: 60, 
-                maxBufferSize: 60 * 1000 * 1000 
-            });
-            hls.loadSource(videoSource);
-            hls.attachMedia(video);
-            
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) loading.classList.add('active');
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        if (videoSource.includes('.m3u8')) {
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    maxMaxBufferLength: 60, 
+                    maxBufferSize: 60 * 1000 * 1000 
+                });
+                hls.loadSource(videoSource);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) loading.classList.add('active');
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSource;
+            }
+        } else {
             video.src = videoSource;
         }
 
