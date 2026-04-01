@@ -7,8 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-    
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <style>
         * {
@@ -24,11 +23,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
-            /* Disable any long-press context menus on the entire page */
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
             user-select: none;
         }
 
@@ -88,7 +84,7 @@
             max-width: 1100px;
             position: relative;
             z-index: 10;
-            display: none; /* Hidden untill verified */
+            display: none; 
         }
 
         /* Player Wrapper */
@@ -101,21 +97,29 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(212, 175, 55, 0.1);
             cursor: pointer;
             transition: border-color 0.3s ease;
-            touch-action: manipulation; /* Mobile compatibility */
-            
-            /* PREVENT ANDROID LONG PRESS HIGHLIGHT & MENU */
+            touch-action: manipulation; 
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
             outline: none;
         }
 
-        .player-wrapper:hover {
-            border-color: rgba(212, 175, 55, 0.5);
+        /* YouTube Style Title Section */
+        .video-info-section {
+            margin-top: 15px;
+            padding: 0 5px;
+            width: 100%;
         }
 
-        /* FULLSCREEN MODE CSS */
+        .video-main-title {
+            color: #D4AF37;
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(16px, 4vw, 22px);
+            font-weight: 700;
+            line-height: 1.4;
+            /* Golden Neon Effect */
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+            letter-spacing: 0.5px;
+        }
+
         .player-wrapper.is-fullscreen,
         .player-wrapper:fullscreen,
         .player-wrapper:-webkit-full-screen {
@@ -134,9 +138,152 @@
             background: #000 !important;
         }
 
-        /* --- Top Left Logo - HIDDEN AS REQUESTED --- */
         .video-logo {
             display: none !important;
+        }
+
+        .top-right-container {
+            position: absolute;
+            top: max(20px, env(safe-area-inset-top));
+            right: max(20px, env(safe-area-inset-right));
+            z-index: 150;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .player-wrapper.show-controls .top-right-container {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .settings-menu {
+            position: absolute;
+            top: 55px; 
+            right: 0;
+            background: rgba(15, 15, 20, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 8px 0;
+            display: none; 
+            flex-direction: column;
+            min-width: 180px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.7);
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .settings-menu.show {
+            display: flex;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .menu-item {
+            background: none;
+            border: none;
+            color: #e4e4e7;
+            padding: 12px 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            transition: background 0.2s ease, color 0.2s ease;
+            outline: none;
+            width: 100%;
+        }
+
+        .menu-item:hover {
+            background: rgba(212, 175, 55, 0.15);
+            color: #D4AF37;
+        }
+
+        .download-modal {
+            position: fixed; 
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 999999;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .download-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: rgba(10, 10, 15, 0.98);
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            border-radius: 16px;
+            padding: 20px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            overflow: hidden; 
+        }
+
+        .download-modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            color: #D4AF37;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-family: 'Inter', sans-serif; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .modal-link {
+            display: block;
+            padding: 10px;
+            margin: 6px 0;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .modal-link:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+            color: #D4AF37;
         }
 
         video {
@@ -145,15 +292,9 @@
             aspect-ratio: 16 / 9;
             background: #000;
             object-fit: cover; 
-            
-            /* THIS PREVENTS LONG-PRESS VIBRATION ON ANDROID */
             pointer-events: none; 
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
         }
 
-        /* FULLSCREEN VIDEO FIX - NO FRAME CUT */
         .player-wrapper.is-fullscreen video {
             width: 100% !important;
             height: 100% !important;
@@ -161,7 +302,6 @@
             object-fit: contain !important;
         }
 
-        /* Controls */
         .controls {
             position: absolute;
             bottom: 0;
@@ -180,7 +320,6 @@
             opacity: 1;
         }
 
-        /* --- THEMED TIMELINE SECTION --- */
         .progress-container {
             width: 100%;
             height: 7px;
@@ -198,7 +337,6 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
-        /* TEMP PREVIEW LINE (GHOST BAR) */
         .seek-preview-bar {
             position: absolute;
             top: 0;
@@ -227,7 +365,6 @@
             z-index: 2;
         }
 
-        /* CONTROLS ROW */
         .controls-row {
             display: flex;
             align-items: center;
@@ -250,7 +387,6 @@
             font-size: 18px;
             backdrop-filter: blur(10px);
             text-decoration: none; 
-            -webkit-tap-highlight-color: transparent;
         }
 
         .btn:hover {
@@ -274,7 +410,6 @@
             flex: 1;
         }
 
-        /* LOADING SPINNER */
         .loading {
             position: absolute;
             top: 50%;
@@ -302,7 +437,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* --- SPECIAL PAUSE RING EFFECT --- */
         .pause-ring-effect {
             position: absolute;
             top: 50%;
@@ -333,24 +467,6 @@
             filter: drop-shadow(0 0 15px rgba(212, 175, 55, 1));
         }
 
-        .pause-ring-effect .outer-ring {
-            stroke-dasharray: 400;
-            stroke-dashoffset: 400;
-            animation: ringDraw 1.5s forwards ease-out;
-            opacity: 0.8;
-        }
-
-        .pause-ring-effect .inner-ring {
-            stroke-dasharray: 300;
-            stroke-dashoffset: 300;
-            animation: ringDrawInner 1.5s forwards ease-out 0.2s;
-            opacity: 0.6;
-        }
-
-        @keyframes ringDraw { to { stroke-dashoffset: 0; } }
-        @keyframes ringDrawInner { to { stroke-dashoffset: 0; } }
-
-        /* --- DOUBLE TAP INDICATOR --- */
         .dt-indicator {
             position: absolute;
             top: 50%;
@@ -382,7 +498,6 @@
             100% { transform: translateY(-50%) scale(1.3); opacity: 0; }
         }
 
-        /* --- ANDROID/MOBILE RESPONSIVE FIXES --- */
         @media (max-width: 1100px) {
             .controls { padding: 20px max(15px, env(safe-area-inset-right)) 15px max(15px, env(safe-area-inset-left)); }
             .controls-row { gap: 6px; }
@@ -395,47 +510,15 @@
             .dt-indicator span { font-size: 11px; }
         }
 
-        /* --- ULTRA-PORTRAIT (NARROW PHONE) FIT FIXES --- */
         @media (max-width: 480px) {
             .controls { padding: 15px 12px 10px 12px; }
             .controls-row { gap: 6px; }
             .btn { width: 34px; height: 34px; border-radius: 8px; }
             .btn svg { width: 16px; height: 16px; }
             .time-display { font-size: 10px; }
-        }
-
-        /* New Title Area CSS */
-        .page-header {
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: 'Orbitron', sans-serif;
-            color: #D4AF37; /* Same Golden Theme Color */
-            /* Basic Golden Glow (Neon Effect) */
-            text-shadow: 0 0 5px rgba(212, 175, 55, 0.7), 
-                         0 0 10px rgba(212, 175, 55, 0.5), 
-                         0 0 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .series-title {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .episode-title {
-            font-size: 18px;
-            font-weight: 400;
-            color: rgba(212, 175, 55, 0.9); /* Slightly fainter golden */
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-
-        /* Mobile Adjustments for Header */
-        @media (max-width: 768px) {
-            .series-title { font-size: 20px; }
-            .episode-title { font-size: 16px; }
-            .page-header { margin-bottom: 15px; }
+            .top-right-container { top: 10px; right: 10px; }
+            .settings-menu { top: 45px; min-width: 140px; }
+            .menu-item { font-size: 13px; padding: 10px 15px; }
         }
     </style>
 </head>
@@ -451,22 +534,51 @@
             </div>
             <h2>Security Check</h2>
             <p>Verify you are human to access this secure content.</p>
-            
-            <div id="cf-turnstile-widget"></div>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACxoimIN2VZKXQHA" data-theme="dark" data-callback="onCloudflareVerified"></div>
         </div>
     </div>
 
-
     <div class="container" id="mainContainer">
-        
-        <div class="page-header">
-            <div class="series-title">Salahuddin Ayyubi Season 2</div>
-            <div class="episode-title">Episode 119</div>
-        </div>
-
         <div class="player-wrapper show-controls" id="playerWrapper">
             
             <img src="https://files.catbox.moe/q1dhlp.jpg" alt="ZS Logo" class="video-logo">
+
+            <div class="top-right-container">
+                <button class="btn" id="settingsBtn" title="Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                </button>
+                <div class="settings-menu" id="settingsMenu">
+                    <button class="menu-item" id="speedBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Speed
+                    </button>
+                    <button class="menu-item" id="downloadBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download
+                    </button>
+                </div>
+            </div>
+
+            <div class="download-modal" id="speedModal">
+                <div class="modal-content">
+                    <button class="modal-close" id="closeSpeedModalBtn">&times;</button>
+                    <h3 class="modal-title">Playback Speed</h3>
+                    <a href="#" class="modal-link speed-option" data-speed="0.5">0.5x</a>
+                    <a href="#" class="modal-link speed-option" data-speed="1">Normal (1x)</a>
+                    <a href="#" class="modal-link speed-option" data-speed="1.25">1.25x</a>
+                    <a href="#" class="modal-link speed-option" data-speed="1.5">1.5x</a>
+                    <a href="#" class="modal-link speed-option" data-speed="2">2x</a>
+                </div>
+            </div>
+
+            <div class="download-modal" id="downloadModal">
+                <div class="modal-content">
+                    <button class="modal-close" id="closeModalBtn">&times;</button>
+                    <div style="padding: 20px 10px; color: #D4AF37; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: 1px;">
+                        Coming Soon...
+                    </div>
+                </div>
+            </div>
 
             <div class="loading">
                 <div class="spinner"></div>
@@ -501,7 +613,6 @@
                 </div>
 
                 <div class="controls-row">
-                    
                     <button class="btn" id="rewindBtn" title="Rewind 5s">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="1 4 1 10 7 10"></polyline>
@@ -548,6 +659,10 @@
                 </div>
             </div>
         </div>
+
+        <div class="video-info-section">
+            <h1 class="video-main-title">Salahuddin Ayyubi Season 2 Episode 119</h1>
+        </div>
     </div>
 
     <script>
@@ -555,32 +670,24 @@
         const mainContainer = document.getElementById('mainContainer');
         const video = document.getElementById('video');
         
-        // --- SECURE DYNAMIC CLOUDFLARE INJECTION ---
-        function onloadTurnstileCallback() {
-            turnstile.render('#cf-turnstile-widget', {
-                sitekey: '0x4AAAAAACxoimIN2VZKXQHA', // Key is protected here
-                theme: 'dark',
-                callback: function(token) {
-                    setTimeout(() => {
-                        securityOverlay.style.opacity = '0';
-                        setTimeout(() => {
-                            securityOverlay.style.display = 'none';
-                            mainContainer.style.display = 'block';
-                        }, 500); 
-                    }, 800); 
-                }
-            });
+        function onCloudflareVerified(token) {
+            setTimeout(() => {
+                securityOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    securityOverlay.style.display = 'none';
+                    mainContainer.style.display = 'block';
+                }, 500); 
+            }, 800); 
         }
 
-        const videoSource = "https:// binding-brena-saood-432b4631.koyeb.app/stream/16?hash=9063c6";
+        const videoSource = "https://vkvd296.okcdn.ru/expires/1775170023337/clientType/13/srcIp/205.254.178.7/type/2/mid/10279722756169/id/9385473083977/ms/185.180.203.174/zs/65/srcAg/CHROME/pr/40/ct/28/sig/ycPtI4YrLew/ondemand/CMmUqM6TkQISFAjJlKjOk5ECEMmUqM6TkQIYNyABGhQIyZSozpORAhDJlKjOk5ECGDcgAiAGKAUwAzgCeM4BGMmwNFr-9oE/fn/track.m3u8";
 
-        // --- UI ELEMENTS ---
         const playBtn = document.getElementById('playBtn');
         const rewindBtn = document.getElementById('rewindBtn');
         const forwardBtn = document.getElementById('forwardBtn');
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
-        const seekPreviewBar = document.getElementById('seekPreviewBar');
+        const seekPreviewBar = document.getElementById('seekPreviewBar'); 
         const timeDisplay = document.getElementById('timeDisplay');
         const muteBtn = document.getElementById('muteBtn');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -589,28 +696,89 @@
         const pauseEffect = document.getElementById('pauseEffect');
         const dtLeft = document.getElementById('dtLeft');
         const dtRight = document.getElementById('dtRight');
+        
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsMenu = document.getElementById('settingsMenu');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const speedBtn = document.getElementById('speedBtn');
+        
+        const downloadModal = document.getElementById('downloadModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const speedModal = document.getElementById('speedModal');
+        const closeSpeedModalBtn = document.getElementById('closeSpeedModalBtn');
+        const speedOptions = document.querySelectorAll('.speed-option');
 
         let hideControlsTimeout;
-        let lastTapTime = 0;
+        let lastTapTime = 0; 
         const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
-        // --- SECURITY: PREVENT RIGHT CLICK ---
+        settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsMenu.classList.toggle('show');
+            resetControlsTimeoutOnAction();
+        });
+
+        downloadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsMenu.classList.remove('show'); 
+            downloadModal.classList.add('show'); 
+            resetControlsTimeoutOnAction();
+        });
+
+        speedBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsMenu.classList.remove('show'); 
+            speedModal.classList.add('show'); 
+            resetControlsTimeoutOnAction();
+        });
+
+        closeModalBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            downloadModal.classList.remove('show');
+        });
+
+        downloadModal.addEventListener('click', (e) => {
+            if (e.target === downloadModal) {
+                downloadModal.classList.remove('show');
+            }
+        });
+
+        closeSpeedModalBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            speedModal.classList.remove('show');
+        });
+
+        speedModal.addEventListener('click', (e) => {
+            if (e.target === speedModal) {
+                speedModal.classList.remove('show');
+            }
+        });
+
+        speedOptions.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                video.playbackRate = parseFloat(link.getAttribute('data-speed'));
+                speedModal.classList.remove('show');
+            });
+        });
+
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault(); 
         });
 
-        if (Hls.isSupported()) {
-            const hls = new Hls({
-                maxMaxBufferLength: 60, 
-                maxBufferSize: 60 * 1000 * 1000 
-            });
-            hls.loadSource(videoSource);
-            hls.attachMedia(video);
-            
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                if (data.fatal) loading.classList.add('active');
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        if (videoSource.includes('.m3u8')) {
+            if (Hls.isSupported()) {
+                const hls = new Hls({ maxMaxBufferLength: 60 });
+                hls.loadSource(videoSource);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) loading.classList.add('active');
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSource;
+            }
+        } else {
             video.src = videoSource;
         }
 
@@ -620,9 +788,6 @@
 
         function fastSeekOptimized(amount) {
             video.currentTime += amount;
-            if (video.paused) {
-                video.play().then(() => video.pause()).catch(() => {});
-            }
         }
 
         function triggerIndicator(element) {
@@ -653,6 +818,7 @@
             if (!video.paused) {
                 hideControlsTimeout = setTimeout(() => {
                     playerWrapper.classList.remove('show-controls');
+                    settingsMenu.classList.remove('show');
                 }, 5000);
             }
         }
@@ -661,26 +827,13 @@
             playerWrapper.addEventListener('mousemove', showControls);
             playerWrapper.addEventListener('mouseenter', showControls);
         }
-        
+
         playBtn.addEventListener('click', togglePlay);
 
-        video.addEventListener('timeupdate', () => {
-            const progress = (video.currentTime / video.duration) * 100;
-            progressBar.style.width = progress + '%';
-            updateTimeDisplay();
-        });
-
-        // --- TIMELINE DRAG & TEMP LINE LOGIC ---
         let isDraggingTimeline = false;
-
         function getTimelinePos(e) {
             const rect = progressContainer.getBoundingClientRect();
-            let clientX = e.clientX;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-            } else if (e.changedTouches && e.changedTouches.length > 0) {
-                clientX = e.changedTouches[0].clientX;
-            }
+            let clientX = e.touches ? e.touches[0].clientX : (e.changedTouches ? e.changedTouches[0].clientX : e.clientX);
             let pos = (clientX - rect.left) / rect.width;
             return Math.max(0, Math.min(pos, 1));
         }
@@ -701,7 +854,6 @@
             isDraggingTimeline = true;
             seekPreviewBar.classList.add('active'); 
             updateDrag(e);
-            
             document.addEventListener('mousemove', updateDrag);
             document.addEventListener('touchmove', updateDrag, { passive: false });
             document.addEventListener('mouseup', endDrag);
@@ -711,90 +863,54 @@
         function updateDrag(e) {
             if (!isDraggingTimeline) return;
             if (e.type === 'touchmove') e.preventDefault(); 
-            
             const pos = getTimelinePos(e);
             seekPreviewBar.style.width = (pos * 100) + '%';
             progressBar.style.width = (pos * 100) + '%'; 
-            
             const customTime = pos * video.duration;
-            const durFormatted = formatTime(video.duration || 0);
-            let curFormatted = formatTime(customTime);
-
-            if ((video.duration || 0) >= 3600 && customTime < 3600) {
-                const mStr = Math.floor((customTime % 3600) / 60).toString().padStart(2, '0');
-                const sStr = Math.floor(customTime % 60).toString().padStart(2, '0');
-                curFormatted = `00:${mStr}:${sStr}`;
-            }
-            timeDisplay.textContent = `${curFormatted} / ${durFormatted}`;
+            timeDisplay.textContent = `${formatTime(customTime)} / ${formatTime(video.duration)}`;
         }
 
         function endDrag(e) {
             if (!isDraggingTimeline) return;
             isDraggingTimeline = false;
-            
-            const pos = getTimelinePos(e);
-            video.currentTime = pos * video.duration; 
-            
+            video.currentTime = getTimelinePos(e) * video.duration; 
             seekPreviewBar.classList.remove('active'); 
-            
             document.removeEventListener('mousemove', updateDrag);
             document.removeEventListener('touchmove', updateDrag);
             document.removeEventListener('mouseup', endDrag);
             document.removeEventListener('touchend', endDrag);
-            
             resetControlsTimeoutOnAction();
         }
 
         progressContainer.addEventListener('mousedown', startDrag);
         progressContainer.addEventListener('touchstart', startDrag, { passive: false });
 
+        video.addEventListener('timeupdate', () => {
+            if(!video.seeking && !isDraggingTimeline) { 
+                progressBar.style.width = (video.currentTime / video.duration) * 100 + '%';
+                updateTimeDisplay();
+            }
+        });
 
-        // --- SCREEN CLICK LOGIC ---
         playerWrapper.addEventListener('click', (e) => {
+            if(!e.target.closest('.top-right-container')) settingsMenu.classList.remove('show');
             if(e.target.closest('.controls') || e.target.closest('.progress-container')) return;
-
             const currentTime = new Date().getTime();
             const tapLength = currentTime - lastTapTime;
             const rect = playerWrapper.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
-            
-            let region = 'center';
-            if (clickX < rect.width / 3) region = 'left';
-            else if (clickX > (rect.width * 2) / 3) region = 'right';
-
+            let region = clickX < rect.width / 3 ? 'left' : (clickX > (rect.width * 2) / 3 ? 'right' : 'center');
             if (!isTouchDevice) {
-                if (tapLength < 300 && tapLength > 0) {
-                    toggleFullscreen(); 
-                    lastTapTime = 0;
-                } else {
-                    togglePlay(); 
-                    lastTapTime = currentTime;
-                }
+                if (tapLength < 300 && tapLength > 0) { toggleFullscreen(); lastTapTime = 0; } else { togglePlay(); lastTapTime = currentTime; }
                 return;
             }
-
             if (tapLength < 300 && tapLength > 0) {
-                if (region === 'left') {
-                    fastSeekOptimized(-5);
-                    triggerIndicator(dtLeft);
-                } else if (region === 'right') {
-                    fastSeekOptimized(5);
-                    triggerIndicator(dtRight);
-                } else {
-                    togglePlay(); 
-                }
+                if (region === 'left') { fastSeekOptimized(-5); triggerIndicator(dtLeft); } 
+                else if (region === 'right') { fastSeekOptimized(5); triggerIndicator(dtRight); } 
+                else togglePlay();
                 lastTapTime = 0; 
             } else {
-                if (region === 'center') {
-                    togglePlay(); 
-                } else {
-                    if (playerWrapper.classList.contains('show-controls')) {
-                        playerWrapper.classList.remove('show-controls');
-                        clearTimeout(hideControlsTimeout);
-                    } else {
-                        resetControlsTimeoutOnAction();
-                    }
-                }
+                if (region === 'center') togglePlay(); else showControls();
                 lastTapTime = currentTime;
             }
         });
@@ -803,126 +919,45 @@
         forwardBtn.addEventListener('click', (e) => { e.stopPropagation(); fastSeekOptimized(5); triggerIndicator(dtRight); resetControlsTimeoutOnAction(); });
 
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                playerWrapper.requestFullscreen().catch(() => {});
-            } else {
-                document.exitFullscreen();
-            }
+            if (!document.fullscreenElement) playerWrapper.requestFullscreen().catch(() => {}); else document.exitFullscreen();
         }
         fullscreenBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-                playerWrapper.classList.add('is-fullscreen');
-                if (screen.orientation && screen.orientation.lock) {
-                    screen.orientation.lock('landscape').catch(() => {});
-                }
-            } else {
-                playerWrapper.classList.remove('is-fullscreen');
-                if (screen.orientation && screen.orientation.unlock) {
-                    screen.orientation.unlock();
-                }
-            }
-        });
-
-        // Mute Logic
         muteBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            video.muted = !video.muted;
-            if (video.muted) {
-                muteBtn.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 5L6 9H2V15H6L11 19V5Z"></path>
-                        <line x1="23" y1="9" x2="17" y2="15"></line>
-                        <line x1="17" y1="9" x2="23" y2="15"></line>
-                    </svg>`;
-            } else {
-                muteBtn.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    </svg>`;
-            }
+            e.stopPropagation(); video.muted = !video.muted;
+            muteBtn.innerHTML = video.muted ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2V15H6L11 19V5Z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
             resetControlsTimeoutOnAction();
         });
 
         function formatTime(seconds) {
             if (isNaN(seconds) || seconds < 0) return '00:00';
-            
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
             const s = Math.floor(seconds % 60);
-
-            const mStr = m.toString().padStart(2, '0');
-            const sStr = s.toString().padStart(2, '0');
-
-            if (h > 0) {
-                return `${h.toString().padStart(2, '0')}:${mStr}:${sStr}`;
-            } else {
-                return `${mStr}:${sStr}`;
-            }
+            return h > 0 ? `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}` : `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
         function updateTimeDisplay() {
-            const dur = video.duration || 0;
-            const cur = video.currentTime;
-            
-            const durFormatted = formatTime(dur);
-            let curFormatted = formatTime(cur);
-
-            if (dur >= 3600 && cur < 3600) {
-                const mStr = Math.floor((cur % 3600) / 60).toString().padStart(2, '0');
-                const sStr = Math.floor(cur % 60).toString().padStart(2, '0');
-                curFormatted = `00:${mStr}:${sStr}`;
-            }
-
-            timeDisplay.textContent = `${curFormatted} / ${durFormatted}`;
+            timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
         }
 
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
-            
-            // --- SECURITY: BLOCK INSPECT ELEMENT SHORTCUTS ---
-            if (e.key === 'F12' || 
-               (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'c' || key === 'j')) || 
-               (e.ctrlKey && key === 'u')) {
-                e.preventDefault();
-                return;
-            }
-
             if (mainContainer.style.display !== 'block') return;
-
-            if (key === 'k' || key === ' ' || e.code === 'Space') { 
-                e.preventDefault(); 
-                togglePlay(); 
-            }
-            else if (key === 'arrowleft' || e.code === 'ArrowLeft') {
-                fastSeekOptimized(-5);
-                triggerIndicator(dtLeft);
-            }
-            else if (key === 'arrowright' || e.code === 'ArrowRight') {
-                fastSeekOptimized(5);
-                triggerIndicator(dtRight);
-            }
-            else if (key === 'f' || e.code === 'KeyF') {
-                toggleFullscreen();
-            }
-            else if (key === 'm' || e.code === 'KeyM') {
-                muteBtn.click(); 
-            }
+            if (key === 'k' || key === ' ' || e.code === 'Space') { e.preventDefault(); togglePlay(); }
+            else if (key === 'arrowleft' || e.code === 'ArrowLeft') { fastSeekOptimized(-5); triggerIndicator(dtLeft); }
+            else if (key === 'arrowright' || e.code === 'ArrowRight') { fastSeekOptimized(5); triggerIndicator(dtRight); }
+            else if (key === 'f' || e.code === 'KeyF') toggleFullscreen();
+            else if (key === 'm' || e.code === 'KeyM') muteBtn.click(); 
         });
 
         video.addEventListener('waiting', () => loading.classList.add('active'));
         video.addEventListener('canplay', () => loading.classList.remove('active'));
 
         function resetControlsTimeoutOnAction() {
-            if (!video.paused) {
-                playerWrapper.classList.add('show-controls');
-                clearTimeout(hideControlsTimeout);
-                hideControlsTimeout = setTimeout(() => {
-                    playerWrapper.classList.remove('show-controls');
-                }, 5000);
-            }
+            playerWrapper.classList.add('show-controls');
+            clearTimeout(hideControlsTimeout);
+            if (!video.paused) hideControlsTimeout = setTimeout(() => { playerWrapper.classList.remove('show-controls'); settingsMenu.classList.remove('show'); }, 5000);
         }
     </script>
 </body>
