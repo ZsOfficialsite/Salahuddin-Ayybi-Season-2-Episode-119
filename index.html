@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ZS Official Player</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -111,13 +111,13 @@
 
         .video-main-title {
             color: #D4AF37;
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(16px, 4vw, 22px);
-            font-weight: 700;
-            line-height: 1.4;
+            font-family: 'Inter', sans-serif; /* Changed to Inter for Normal Case look */
+            font-size: clamp(18px, 4.5vw, 24px);
+            font-weight: 700; /* Bold */
+            line-height: 1.3;
             /* Golden Neon Effect */
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
-            letter-spacing: 0.5px;
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+            letter-spacing: -0.2px;
         }
 
         .player-wrapper.is-fullscreen,
@@ -680,7 +680,8 @@
             }, 800); 
         }
 
-        const videoSource = "https://vkvd296.okcdn.ru/expires/1775170023337/clientType/13/srcIp/205.254.178.7/type/2/mid/10279722756169/id/9385473083977/ms/185.180.203.174/zs/65/srcAg/CHROME/pr/40/ct/28/sig/ycPtI4YrLew/ondemand/CMmUqM6TkQISFAjJlKjOk5ECEMmUqM6TkQIYNyABGhQIyZSozpORAhDJlKjOk5ECGDcgAiAGKAUwAzgCeM4BGMmwNFr-9oE/fn/track.m3u8";
+        // CORRECT VIDEO LINK UPDATED
+        const videoSource = "https://binding-brena-saood-432b4631.koyeb.app/stream/16?hash=9063c6";
 
         const playBtn = document.getElementById('playBtn');
         const rewindBtn = document.getElementById('rewindBtn');
@@ -767,6 +768,7 @@
             e.preventDefault(); 
         });
 
+        // FIXED HLS AND DIRECT PLAYBACK LOGIC
         if (videoSource.includes('.m3u8')) {
             if (Hls.isSupported()) {
                 const hls = new Hls({ maxMaxBufferLength: 60 });
@@ -803,7 +805,7 @@
                     playBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>';
                     pauseEffect.classList.remove('active');
                     showControls();
-                });
+                }).catch(e => console.log("Play failed"));
             } else {
                 video.pause();
                 playBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
@@ -900,6 +902,7 @@
             const rect = playerWrapper.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             let region = clickX < rect.width / 3 ? 'left' : (clickX > (rect.width * 2) / 3 ? 'right' : 'center');
+            
             if (!isTouchDevice) {
                 if (tapLength < 300 && tapLength > 0) { toggleFullscreen(); lastTapTime = 0; } else { togglePlay(); lastTapTime = currentTime; }
                 return;
@@ -952,6 +955,7 @@
         });
 
         video.addEventListener('waiting', () => loading.classList.add('active'));
+        video.addEventListener('playing', () => loading.classList.remove('active'));
         video.addEventListener('canplay', () => loading.classList.remove('active'));
 
         function resetControlsTimeoutOnAction() {
